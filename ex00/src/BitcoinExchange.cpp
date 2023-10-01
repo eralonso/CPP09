@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/30 11:53:10 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/01 14:49:12 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/01 19:29:54 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,44 +29,73 @@ BitcoinExchange&	BitcoinExchange::operator=( const BitcoinExchange& bte )
 
 void	BitcoinExchange::exchange( std::string file )
 {
-	std::map< std::string, float >	dataBaseInfo;
-	std::map< std::string, float >	inputFileInfo;
+	// std::map< std::string, float >	dataBaseInfo;
+	// std::map< std::string, float >	inputFileInfo;
 
-	processFile( DATA_BASE_PATH, DATA_BASE_HEADER, DATA_BASE_DELIMITER, floatToString( DATA_BASE_VALUE_LIMIT ), dataBaseInfo );
-	processFile( file, INPUT_FILE_HEADER, INPUT_FILE_DELIMITER, floatToString( INPUT_FILE_VALUE_LIMIT ), inputFileInfo );
-	dataBaseInfo.clear();
-	inputFileInfo.clear();
+	// processFile( DATA_BASE_PATH, DATA_BASE_HEADER, DATA_BASE_DELIMITER, floatToString( DATA_BASE_VALUE_LIMIT ), dataBaseInfo );
+	// processFile( file, INPUT_FILE_HEADER, INPUT_FILE_DELIMITER, floatToString( INPUT_FILE_VALUE_LIMIT ), inputFileInfo );
+	// dataBaseInfo.clear();
+	// inputFileInfo.clear();
+	std::map< std::string, float >	dataBaseInfo;
+	std::ifstream					dataFile;
+	std::ifstream					inputFile;
+
+	checkFile( DATA_BASE_PATH, DATA_BASE_HEADER, dataFile );
+	try
+	{
+		processFile(  );
+		checkFile( file, INPUT_FILE_HEADER, inputFile );
+	}
+	catch( const std::exception& e )
+	{
+		dataFile.close();
+		return ;
+	}
+	inputFile.close();	
+	dataFile.close();	
 }
 
-void	BitcoinExchange::processFile( std::string file, std::string header, char delimiter, std::string valueLimit, std::map< std::string, float >& info )
+void	BitcoinExchange::checkFile( std::string file, std::string headerExpected, std::ifstream& in )
 {
-	std::ifstream					input;
+	std::string	headerFile;
+
+	in.open( file );
+	if ( in.is_open() == false )
+		throw std::runtime_error( "Error Could not open file\n" );
+	std::getline( in, headerFile );
+	if ( headerExpected != headerFile )
+	{
+		in.close();
+		throw std::runtime_error( "Error: Invalid data header => " + headerExpected );
+	}
+}
+
+void	BitcoinExchange::processFile( std::ifstream in, char delimiter, std::string valueLimit, std::map< std::string, float >& dataBase, bool isDB )
+{
 	std::string						storage;
 	std::pair< std::string, float >	elem;
 
-	input.open( file );
-	if ( input.is_open() == false )
-		throw std::runtime_error( "Error Could not open file\n" );
-	std::getline( input, storage );
-	if ( storage != header )
-		throw std::runtime_error( "Error: Invalid data header -> " + header );
-	while ( std::getline( input, storage ) )
+	while ( std::getline( in, storage ) )
 	{
 		try
 		{
 			elem = checkLine( storage, delimiter, valueLimit );
-			if ( info.count( elem.first ) > 0 )
-				throw std::runtime_error( "Error: Duplicate date => " + storage );
-			info.insert( elem );
+			if ( isDB == true )
+			{
+				if ( dataBase.count( elem.first ) > 0 )
+					throw std::runtime_error( "Error: Duplicate date => " + storage );
+				dataBase.insert( elem );
+			}
+			else
+			{
+				
+			}
 		}
 		catch( const std::exception& e )
 		{
 			std::cerr << e.what() << std::endl;
 		}
-		// std::cout << storage << std::endl;
 	}
-	( void ) info;
-	input.close();
 }
 
 std::pair< std::string, float >	BitcoinExchange::checkLine( std::string& line, char delimiter, std::string& valueLimit )
@@ -82,22 +111,23 @@ std::pair< std::string, float >	BitcoinExchange::checkLine( std::string& line, c
 	std::getline( tmpstream, extract[ 0 ], delimiter );
 	if ( extract[ 0 ].length() == 0 )
 		throw std::runtime_error( "Error: " + error + line + " ]" );
-	if ( checkDateSyntax( extract[ 0 ] ) == false )
+	if ( checkDate( extract[ 0 ] ) == false )
 		throw std::runtime_error( "Error: " + error + line + " ]" );
 	std::getline( tmpstream, extract[ 1 ], delimiter );
 	if ( extract[ 1 ].length() == 0 )
 		throw std::runtime_error( "Error: " + error + line + " ]" );
 	if ( checkValue( extract[ 1 ], valueLimit, error ) == false )
 		throw std::runtime_error( "Error: " + error + line + " ]" );
-	// std::cout << "date:" << extract[ 0 ] << ":" << " value:" << std::atof( extract[ 1 ].c_str() ) << ":" << std::endl;
 	return ( std::pair< std::string, float >( extract[ 0 ], std::atof( extract[ 1 ].c_str() ) ) );
 }
 
-bool	BitcoinExchange::checkDateSyntax( std::string& date )
+bool	BitcoinExchange::checkDate( std::string& date )
 {
 	std::stringstream	tmpstream;
 	std::string			value;
+	size_t				components;
 	const size_t		lengths[ 3 ] = { 4, 2, 2 };
+	const size_t		ranges[ 3 ][ 2 ] = { { 0, 9999 }, { 1, 12 }, { 1, 31 } };
 
 	if ( *(date.end() - 1) == ' ' )
 		date.erase( date.end() - 1 );
@@ -108,7 +138,9 @@ bool	BitcoinExchange::checkDateSyntax( std::string& date )
 	for ( int i = 0; i < 3; i++ )
 	{
 		std::getline( tmpstream, value , '-' );
-		if ( value.length() != lengths[ i ] || !isInt( value ) )
+		components = std::atoi( value.c_str() );
+		if ( value.length() != lengths[ i ] || !isInt( value ) \
+			|| components < ranges[ i ][ 0 ] || components > ranges[ i ][ 1 ] )
 			return ( false );
 	}
 	return ( true );

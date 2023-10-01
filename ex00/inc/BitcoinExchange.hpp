@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/30 11:44:44 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/01 14:49:06 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/01 19:30:01 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,17 +37,18 @@ class BitcoinExchange
 		BitcoinExchange( const BitcoinExchange& bte );
 		~BitcoinExchange( void );
 		BitcoinExchange&						operator=( const BitcoinExchange& bte );
+		static void								checkFile( std::string file, std::string headerExpected, std::ifstream& in );
 		static std::pair< std::string, float >	checkLine( std::string& line, char delimiter, \
 														std::string& valueLimit );
-		static bool								checkDateSyntax( std::string& date );
+		static bool								checkDate( std::string& date );
 		static bool								checkValue( std::string& date, std::string& valueLimit, std::string& error );
 		static bool								isInt( std::string& num );
 		static bool								isPositiveFloat( std::string& num, std::string& error );
 		static size_t							countChar( std::string str, char c, size_t n );
 		static std::string						beforeDot( std::string& num );
 		static std::string						floatToString( float num );
-		static void								processFile( std::string file, std::string header, char delimiter, \
-														std::string valueLimit, std::map< std::string, float >& info );
+		static void								processFile( std::ifstream in, char delimiter, std::string valueLimit, \
+														std::map< std::string, float >& dataBase, bool isDB );
 	public:
 		static void	exchange( std::string file );
 };
