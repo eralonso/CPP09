@@ -6,7 +6,7 @@
 #    By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/22 10:08:41 by eralonso          #+#    #+#              #
-#    Updated: 2023/10/02 18:35:18 by eralonso         ###   ########.fr        #
+#    Updated: 2023/10/02 19:29:51 by eralonso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ PINK		:=	\033[1;95m
 CIAN		:=	\033[1;96m
 
 #<--------------------------------->NAME<------------------------------------>#
-PRENAME		:=	"btc"
+PRENAME		:=	"RPN"
 NAME		:=	$(shell echo $(PRENAME) | tr ' ' '_')
 
 #<--------------------------------->VARS<------------------------------------>#
@@ -56,11 +56,11 @@ SRC_DIRS	:=	$(addprefix $(SRC_ROOT),$(SRC_DIRS))
 SRC_DIRS	:=	$(subst $(SPACE),:,$(SRC_DIRS))
 
 #<--------------------------------->FILES<---------------------------------->#
-FILES		:=	main BitcoinExchange
+FILES		:=	main RPN
 
 #<---------------------------------->LANG<---------------------------------->#
 LANG		:=	CPP
-CFLAGS		:=	-Wall -Wextra -Werror #-fsanitize=address
+CFLAGS		:=	-Wall -Wextra -Werror -fsanitize=address
 
 ifeq ($(LANG),C)
 	CC := cc

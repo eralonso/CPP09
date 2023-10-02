@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/30 11:53:10 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/01 19:29:54 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/02 18:38:56 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,16 +43,18 @@ void	BitcoinExchange::exchange( std::string file )
 	checkFile( DATA_BASE_PATH, DATA_BASE_HEADER, dataFile );
 	try
 	{
-		processFile(  );
+		processFile( dataFile, DATA_BASE_DELIMITER, floatToString( DATA_BASE_VALUE_LIMIT ), dataBaseInfo, true );
 		checkFile( file, INPUT_FILE_HEADER, inputFile );
+		processFile( inputFile, INPUT_FILE_DELIMITER, floatToString( INPUT_FILE_VALUE_LIMIT ), dataBaseInfo, false );
 	}
 	catch( const std::exception& e )
 	{
 		dataFile.close();
+		std::cerr << e.what() << std::endl;
 		return ;
 	}
-	inputFile.close();	
-	dataFile.close();	
+	inputFile.close();
+	dataFile.close();
 }
 
 void	BitcoinExchange::checkFile( std::string file, std::string headerExpected, std::ifstream& in )
@@ -61,7 +63,7 @@ void	BitcoinExchange::checkFile( std::string file, std::string headerExpected, s
 
 	in.open( file );
 	if ( in.is_open() == false )
-		throw std::runtime_error( "Error Could not open file\n" );
+		throw std::runtime_error( "Error: Could not open file\n" );
 	std::getline( in, headerFile );
 	if ( headerExpected != headerFile )
 	{
@@ -70,10 +72,11 @@ void	BitcoinExchange::checkFile( std::string file, std::string headerExpected, s
 	}
 }
 
-void	BitcoinExchange::processFile( std::ifstream in, char delimiter, std::string valueLimit, std::map< std::string, float >& dataBase, bool isDB )
+void	BitcoinExchange::processFile( std::ifstream& in, char delimiter, std::string valueLimit, std::map< std::string, float >& dataBase, bool isDB )
 {
-	std::string						storage;
 	std::pair< std::string, float >	elem;
+	float							value;
+	std::string						storage;
 
 	while ( std::getline( in, storage ) )
 	{
@@ -88,7 +91,17 @@ void	BitcoinExchange::processFile( std::ifstream in, char delimiter, std::string
 			}
 			else
 			{
-				
+				if ( dataBase.find( elem.first ) != dataBase.end() )
+					value = dataBase[ elem.first ];
+				else
+				{
+					dataBase.insert( elem );
+					if ( dataBase.find( elem.first ) == dataBase.begin() )
+						throw std::runtime_error( "Error: Date not found and no lowest date availabe on Data Base => [ " + storage + " ]" );
+					value = (*(--dataBase.find( elem.first ))).second;
+					dataBase.erase( elem.first );
+				}
+				std::cout << std::fixed << std::setprecision( 2 ) << elem.first << " => " << elem.second << " = " << elem.second * value << std::endl;
 			}
 		}
 		catch( const std::exception& e )

@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/30 11:44:44 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/01 19:30:01 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/02 19:34:08 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ class BitcoinExchange
 	private:
 		BitcoinExchange( void );
 		BitcoinExchange( const BitcoinExchange& bte );
-		~BitcoinExchange( void );
 		BitcoinExchange&						operator=( const BitcoinExchange& bte );
 		static void								checkFile( std::string file, std::string headerExpected, std::ifstream& in );
 		static std::pair< std::string, float >	checkLine( std::string& line, char delimiter, \
@@ -47,8 +46,9 @@ class BitcoinExchange
 		static size_t							countChar( std::string str, char c, size_t n );
 		static std::string						beforeDot( std::string& num );
 		static std::string						floatToString( float num );
-		static void								processFile( std::ifstream in, char delimiter, std::string valueLimit, \
+		static void								processFile( std::ifstream& in, char delimiter, std::string valueLimit, \
 														std::map< std::string, float >& dataBase, bool isDB );
 	public:
+		~BitcoinExchange( void );
 		static void	exchange( std::string file );
 };
