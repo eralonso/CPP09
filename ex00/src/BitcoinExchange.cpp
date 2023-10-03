@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/30 11:53:10 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/02 18:38:56 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/03 16:29:42 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,6 @@ BitcoinExchange&	BitcoinExchange::operator=( const BitcoinExchange& bte )
 
 void	BitcoinExchange::exchange( std::string file )
 {
-	// std::map< std::string, float >	dataBaseInfo;
-	// std::map< std::string, float >	inputFileInfo;
-
-	// processFile( DATA_BASE_PATH, DATA_BASE_HEADER, DATA_BASE_DELIMITER, floatToString( DATA_BASE_VALUE_LIMIT ), dataBaseInfo );
-	// processFile( file, INPUT_FILE_HEADER, INPUT_FILE_DELIMITER, floatToString( INPUT_FILE_VALUE_LIMIT ), inputFileInfo );
-	// dataBaseInfo.clear();
-	// inputFileInfo.clear();
 	std::map< std::string, float >	dataBaseInfo;
 	std::ifstream					dataFile;
 	std::ifstream					inputFile;
