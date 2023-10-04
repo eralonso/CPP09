@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 16:30:58 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/03 19:35:46 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/04 13:35:50 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,22 +30,26 @@ PmergeMe&	PmergeMe::operator=( const PmergeMe& pmm )
 void	PmergeMe::mergeInsertionSort( char **nums )
 {
 	std::vector< int >	vec;
-	std::list< int >	lst;
+	std::deque< int >	dque;
 	time_t				vecTime[ 2 ];
 	time_t				lstTime[ 2 ];
 
-	checkNumbers( nums, vec, lst );
+	checkNumbers( nums, vec, dque );
 	printNumbers( "Before", vec );
 	time( &vecTime[ 0 ] );
+	sortVector( vec );
 	time( &vecTime[ 1 ] );
 	time( &lstTime[ 0 ] );
+	sortDeque( dque );
 	time( &lstTime[ 1 ] );
 	printNumbers( "After", vec );
 	printTime( vec.size(), "vector", difftime( vecTime[ 1 ], vecTime[ 0 ] ) );
-	printTime( lst.size(), "list", difftime( lstTime[ 1 ], lstTime[ 0 ] ) );
+	printTime( dque.size(), "deque", difftime( lstTime[ 1 ], lstTime[ 0 ] ) );
 }
 
-void	PmergeMe::checkNumbers( char **nums, std::vector< int >& container1, std::list< int >& container2 )
+void	sortVector( std::vector< int >& vec )
+
+void	PmergeMe::checkNumbers( char **nums, std::vector< int >& container1, std::deque< int >& container2 )
 {
 	std::string	error;
 
@@ -130,8 +134,8 @@ void	PmergeMe::printTime( int range, std::string container, double timeDiff )
 
 std::string     PmergeMe::integerToString( int num )
 {
-        std::stringstream       ss;
+	std::stringstream       ss;
 
-        ss << num;
-        return ( ss.str() );
+	ss << num;
+	return ( ss.str() );
 }

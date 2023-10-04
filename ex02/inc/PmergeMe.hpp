@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 14:21:07 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/03 19:31:12 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/04 13:34:48 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <list>
+#include <deque>
 #include <vector>
 
 class PmergeMe
@@ -25,7 +25,7 @@ class PmergeMe
 		~PmergeMe( void );
 		PmergeMe&			operator=( const PmergeMe& pmm );
 		static std::string	integerToString( int num );
-		static void			checkNumbers( char **nums, std::vector< int >& container1, std::list< int >& container2 );
+		static void			checkNumbers( char **nums, std::vector< int >& container1, std::deque< int >& container2 );
 		static bool			isInteger( std::string num, std::string& error );
 		static bool			isPositiveNum( std::string num, std::string& error );
 		static void			printNumbers( std::string status, std::vector< int > vec );
