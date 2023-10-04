@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 16:30:58 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/04 13:35:50 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/04 18:37:50 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,27 +27,83 @@ PmergeMe&	PmergeMe::operator=( const PmergeMe& pmm )
 	return ( *this );
 }
 
+#include <unistd.h>
+
 void	PmergeMe::mergeInsertionSort( char **nums )
 {
 	std::vector< int >	vec;
 	std::deque< int >	dque;
-	time_t				vecTime[ 2 ];
-	time_t				lstTime[ 2 ];
+	std::clock_t		vecTime[ 2 ];
+	// time_t				dqueTime[ 2 ];
 
 	checkNumbers( nums, vec, dque );
 	printNumbers( "Before", vec );
-	time( &vecTime[ 0 ] );
-	sortVector( vec );
-	time( &vecTime[ 1 ] );
-	time( &lstTime[ 0 ] );
-	sortDeque( dque );
-	time( &lstTime[ 1 ] );
+	vecTime[ 0 ] = std::clock();
+	sortVector( vec, 0, vec.size() - 1 );
+	// usleep(10000000);
+	vecTime[ 1 ] = std::clock();
+	// time( &dqueTime[ 0 ] );
+	// // sortDeque( dque, 0, dque.size() + 1 );
+	// time( &dqueTime[ 1 ] );
 	printNumbers( "After", vec );
-	printTime( vec.size(), "vector", difftime( vecTime[ 1 ], vecTime[ 0 ] ) );
-	printTime( dque.size(), "deque", difftime( lstTime[ 1 ], lstTime[ 0 ] ) );
+	printTime( vec.size(), "vector", ( vecTime[ 1 ] - vecTime[ 0 ] ) / CLOCKS_PER_SEC * 1000 );
+	// // printTime( dque.size(), "deque", difftime( dqueTime[ 1 ], dqueTime[ 0 ] ) );
 }
 
-void	sortVector( std::vector< int >& vec )
+void	PmergeMe::sortInsertionVector( std::vector< int >& vec, unsigned int start, unsigned int end )
+{
+	unsigned int	j;
+	int				tmp;
+
+	for ( unsigned int i = start; i < end; i++ )
+	{
+		j = i + 1;
+		tmp = vec[ j ];
+		for ( ; j > start && vec[ j - 1 ] > tmp ; j-- )
+			vec[ j ] = vec[ j - 1 ];
+		vec[ j ] = tmp;
+	}
+}
+
+void	PmergeMe::sortMergeVector( std::vector< int >& vec, unsigned int start, unsigned int mid, unsigned int end )
+{
+	unsigned int		limits[ 2 ];
+	unsigned int		idx[ 2 ];
+	std::vector< int >	sides[ 2 ];
+
+	limits[ LEFT ] = ( mid - start ) + 1;
+	limits[ RIGHT ] = end - mid;
+	sides[ LEFT ].insert( sides[ LEFT ].begin(), vec.begin() + start, vec.begin() + mid + 1 );
+	sides[ RIGHT ].insert( sides[ RIGHT ].begin(), vec.begin() + mid + 1, vec.begin() + end + 1 );
+	idx[ LEFT ] = 0;
+	idx[ RIGHT ] = 0;
+	for ( unsigned int i = start; i < ( end - start ) + 1; i++ )
+	{
+		if ( idx[ LEFT ] == limits[ LEFT ] )
+			vec[ i ] = sides[ RIGHT ][ idx[ RIGHT ]++ ];
+		else if ( idx[ RIGHT ] == limits[ RIGHT ] )
+			vec[ i ] = sides[ LEFT ][ idx[ LEFT ]++ ];
+		else if ( sides[ LEFT ][ idx[ LEFT ] ] < sides[ RIGHT ][ idx[ RIGHT ] ] )
+			vec[ i ] = sides[ LEFT ][ idx[ LEFT ]++ ];
+		else
+			vec[ i ] = sides[ RIGHT ][ idx[ RIGHT ]++ ];
+	}
+}
+
+void	PmergeMe::sortVector( std::vector< int >& vec, unsigned int start, unsigned int end )
+{
+	int	mid;
+
+	if ( end - start > PmergeMe::_size )
+	{
+		mid = ( start + end ) / 2;
+		sortVector( vec, start, mid );
+		sortVector( vec, mid + 1, end );
+		sortMergeVector( vec, start, mid, end );
+	}
+	else
+		sortInsertionVector( vec, start, end );
+}
 
 void	PmergeMe::checkNumbers( char **nums, std::vector< int >& container1, std::deque< int >& container2 )
 {
@@ -57,9 +113,9 @@ void	PmergeMe::checkNumbers( char **nums, std::vector< int >& container1, std::d
 	for ( int i = 0; nums[ i ] != NULL; i++ )
 	{
 		if ( !isPositiveNum( nums[ i ], error ) )
-			throw std::logic_error( error + std::string( nums[ i ] ) );
+			throw std::invalid_argument( error + std::string( nums[ i ] ) );
 		if ( !isInteger( nums[ i ], error ) )
-			throw std::logic_error( error + std::string( nums[ i ] ) );
+			throw std::invalid_argument( error + std::string( nums[ i ] ) );
 		container1.push_back( std::atoi( nums[ i ] ) );
 		container2.push_back( std::atoi( nums[ i ] ) );
 	}

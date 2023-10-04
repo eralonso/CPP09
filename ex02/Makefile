@@ -6,7 +6,7 @@
 #    By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/22 10:08:41 by eralonso          #+#    #+#              #
-#    Updated: 2023/10/03 14:20:49 by eralonso         ###   ########.fr        #
+#    Updated: 2023/10/04 17:38:17 by eralonso         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,7 +60,7 @@ FILES		:=	main PmergeMe
 
 #<---------------------------------->LANG<---------------------------------->#
 LANG		:=	CPP
-CFLAGS		:=	-Wall -Wextra -Werror -fsanitize=address
+CFLAGS		:=	-Wall -Wextra -Werror -g -fsanitize=address
 
 ifeq ($(LANG),C)
 	CC := cc
