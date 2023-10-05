@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 16:30:58 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/04 18:37:50 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/05 13:26:26 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,29 +27,7 @@ PmergeMe&	PmergeMe::operator=( const PmergeMe& pmm )
 	return ( *this );
 }
 
-#include <unistd.h>
-
-void	PmergeMe::mergeInsertionSort( char **nums )
-{
-	std::vector< int >	vec;
-	std::deque< int >	dque;
-	std::clock_t		vecTime[ 2 ];
-	// time_t				dqueTime[ 2 ];
-
-	checkNumbers( nums, vec, dque );
-	printNumbers( "Before", vec );
-	vecTime[ 0 ] = std::clock();
-	sortVector( vec, 0, vec.size() - 1 );
-	// usleep(10000000);
-	vecTime[ 1 ] = std::clock();
-	// time( &dqueTime[ 0 ] );
-	// // sortDeque( dque, 0, dque.size() + 1 );
-	// time( &dqueTime[ 1 ] );
-	printNumbers( "After", vec );
-	printTime( vec.size(), "vector", ( vecTime[ 1 ] - vecTime[ 0 ] ) / CLOCKS_PER_SEC * 1000 );
-	// // printTime( dque.size(), "deque", difftime( dqueTime[ 1 ], dqueTime[ 0 ] ) );
-}
-
+// Vector Insertion sort algortihm
 void	PmergeMe::sortInsertionVector( std::vector< int >& vec, unsigned int start, unsigned int end )
 {
 	unsigned int	j;
@@ -65,19 +43,20 @@ void	PmergeMe::sortInsertionVector( std::vector< int >& vec, unsigned int start,
 	}
 }
 
+// Vector Merge sort algortihm
 void	PmergeMe::sortMergeVector( std::vector< int >& vec, unsigned int start, unsigned int mid, unsigned int end )
 {
 	unsigned int		limits[ 2 ];
 	unsigned int		idx[ 2 ];
 	std::vector< int >	sides[ 2 ];
-
-	limits[ LEFT ] = ( mid - start ) + 1;
+	limits[ LEFT ] = mid - start + 1;
 	limits[ RIGHT ] = end - mid;
+
 	sides[ LEFT ].insert( sides[ LEFT ].begin(), vec.begin() + start, vec.begin() + mid + 1 );
 	sides[ RIGHT ].insert( sides[ RIGHT ].begin(), vec.begin() + mid + 1, vec.begin() + end + 1 );
 	idx[ LEFT ] = 0;
 	idx[ RIGHT ] = 0;
-	for ( unsigned int i = start; i < ( end - start ) + 1; i++ )
+	for ( unsigned int i = start; i - start < end - start + 1; i++ )
 	{
 		if ( idx[ LEFT ] == limits[ LEFT ] )
 			vec[ i ] = sides[ RIGHT ][ idx[ RIGHT ]++ ];
@@ -90,6 +69,7 @@ void	PmergeMe::sortMergeVector( std::vector< int >& vec, unsigned int start, uns
 	}
 }
 
+// Vector Merge-Insertion sort algortihm
 void	PmergeMe::sortVector( std::vector< int >& vec, unsigned int start, unsigned int end )
 {
 	int	mid;
@@ -105,6 +85,107 @@ void	PmergeMe::sortVector( std::vector< int >& vec, unsigned int start, unsigned
 		sortInsertionVector( vec, start, end );
 }
 
+// Deque insertion sort algortihm
+void	PmergeMe::sortInsertionDeque( std::deque< int >& dque, unsigned int start, unsigned int end )
+{
+	unsigned int	j;
+	int				tmp;
+
+	for ( unsigned int i = start; i < end; i++ )
+	{
+		j = i + 1;
+		tmp = dque[ j ];
+		for ( ; j > start && dque[ j - 1 ] > tmp ; j-- )
+			dque[ j ] = dque[ j - 1 ];
+		dque[ j ] = tmp;
+	}
+}
+
+// Deque Merge sort algortihm
+void	PmergeMe::sortMergeDeque( std::deque< int >& dque, unsigned int start, unsigned int mid, unsigned int end )
+{
+	unsigned int		limits[ 2 ];
+	unsigned int		idx[ 2 ];
+	std::deque< int >	sides[ 2 ];
+	limits[ LEFT ] = mid - start + 1;
+	limits[ RIGHT ] = end - mid;
+
+	sides[ LEFT ].insert( sides[ LEFT ].begin(), dque.begin() + start, dque.begin() + mid + 1 );
+	sides[ RIGHT ].insert( sides[ RIGHT ].begin(), dque.begin() + mid + 1, dque.begin() + end + 1 );
+	idx[ LEFT ] = 0;
+	idx[ RIGHT ] = 0;
+	for ( unsigned int i = start; i - start < end - start + 1; i++ )
+	{
+		if ( idx[ LEFT ] == limits[ LEFT ] )
+			dque[ i ] = sides[ RIGHT ][ idx[ RIGHT ]++ ];
+		else if ( idx[ RIGHT ] == limits[ RIGHT ] )
+			dque[ i ] = sides[ LEFT ][ idx[ LEFT ]++ ];
+		else if ( sides[ LEFT ][ idx[ LEFT ] ] < sides[ RIGHT ][ idx[ RIGHT ] ] )
+			dque[ i ] = sides[ LEFT ][ idx[ LEFT ]++ ];
+		else
+			dque[ i ] = sides[ RIGHT ][ idx[ RIGHT ]++ ];
+	}
+}
+
+// Deque Merge-Insertion sort algortihm
+void	PmergeMe::sortDeque( std::deque< int >& dque, unsigned int start, unsigned int end )
+{
+	int	mid;
+
+	if ( end - start > PmergeMe::_size )
+	{
+		mid = ( start + end ) / 2;
+		sortDeque( dque, start, mid );
+		sortDeque( dque, mid + 1, end );
+		sortMergeDeque( dque, start, mid, end );
+	}
+	else
+		sortInsertionDeque( dque, start, end );
+}
+
+// Main function
+void	PmergeMe::mergeInsertionSort( char **nums )
+{
+	std::vector< int >	vec;
+	std::deque< int >	dque;
+	std::clock_t		vecTime[ 2 ];
+	std::clock_t		dqueTime[ 2 ];
+
+	checkNumbers( nums, vec, dque );
+	printNumbers( "Before", vec );
+	vecTime[ 0 ] = std::clock();
+	sortVector( vec, 0, vec.size() - 1 );
+	vecTime[ 1 ] = std::clock();
+	dqueTime[ 0 ] = std::clock();
+	sortDeque( dque, 0, dque.size() - 1 );
+	dqueTime[ 1 ] = std::clock();
+	printNumbers( "\n\nAfter", vec );
+	printTime( vec.size(), "vector", ( static_cast< double >( vecTime[ 1 ] - vecTime[ 0 ] ) / CLOCKS_PER_SEC ) * 1000000 );
+	printTime( dque.size(), "vector", ( static_cast< double >( dqueTime[ 1 ] - dqueTime[ 0 ] ) / CLOCKS_PER_SEC ) * 1000000 );
+	if ( PmergeMe::isSorted< std::vector< int > >( vec.begin(), vec.end() ) == false )
+		throw std::runtime_error( "\033[1;91mVector Is not sorted\033[1;97m" );
+	std::cout << "\033[1;92mVector Is sorted\033[1;97m" << std::endl;
+	if ( PmergeMe::isSorted< std::deque< int > >( dque.begin(), dque.end() ) == false )
+		throw std::runtime_error( "\033[1;91mDeque Is not sorted\033[1;97m" );
+	std::cout << "\033[1;92mDeque Is sorted\033[1;97m" << std::endl;
+}
+
+// Sorting check Util
+template < typename T >
+bool	PmergeMe::isSorted( typename T::iterator begin, typename T::iterator end )
+{
+	typename T::value_type	last;
+
+	for ( typename T::iterator it = begin; it != end; it++ )
+	{
+		if ( it != begin &&  *it < last )
+			return ( false );
+		last = *it;
+	}
+	return ( true );
+}
+
+// Numbers checking
 void	PmergeMe::checkNumbers( char **nums, std::vector< int >& container1, std::deque< int >& container2 )
 {
 	std::string	error;
@@ -116,11 +197,14 @@ void	PmergeMe::checkNumbers( char **nums, std::vector< int >& container1, std::d
 			throw std::invalid_argument( error + std::string( nums[ i ] ) );
 		if ( !isInteger( nums[ i ], error ) )
 			throw std::invalid_argument( error + std::string( nums[ i ] ) );
+		if ( std::find< std::vector< int >::iterator, int >( container1.begin(), container1.end(), std::atoi( nums[ i ] ) ) != container1.end() )
+			throw std::invalid_argument( "Error: Duplicate number is invalid => " + std::string( nums[ i ] ) );
 		container1.push_back( std::atoi( nums[ i ] ) );
 		container2.push_back( std::atoi( nums[ i ] ) );
 	}
 }
 
+// Utils
 bool	PmergeMe::isInteger( std::string num, std::string& error )
 {
 	size_t		len;
