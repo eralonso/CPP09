@@ -6,7 +6,7 @@
 /*   By: eralonso <eralonso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 16:30:58 by eralonso          #+#    #+#             */
-/*   Updated: 2023/10/05 13:26:26 by eralonso         ###   ########.fr       */
+/*   Updated: 2023/10/05 13:45:34 by eralonso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ void	PmergeMe::mergeInsertionSort( char **nums )
 	dqueTime[ 1 ] = std::clock();
 	printNumbers( "\n\nAfter", vec );
 	printTime( vec.size(), "vector", ( static_cast< double >( vecTime[ 1 ] - vecTime[ 0 ] ) / CLOCKS_PER_SEC ) * 1000000 );
-	printTime( dque.size(), "vector", ( static_cast< double >( dqueTime[ 1 ] - dqueTime[ 0 ] ) / CLOCKS_PER_SEC ) * 1000000 );
+	printTime( dque.size(), "deque", ( static_cast< double >( dqueTime[ 1 ] - dqueTime[ 0 ] ) / CLOCKS_PER_SEC ) * 1000000 );
 	if ( PmergeMe::isSorted< std::vector< int > >( vec.begin(), vec.end() ) == false )
 		throw std::runtime_error( "\033[1;91mVector Is not sorted\033[1;97m" );
 	std::cout << "\033[1;92mVector Is sorted\033[1;97m" << std::endl;
